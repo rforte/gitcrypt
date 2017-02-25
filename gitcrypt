@@ -57,7 +57,8 @@ function encrypt
   fi  
 }
 
-#while getopts ":d:e:h:" opt; do
+check_reqs
+
 while getopts "e::d :h" opt; do
   case $opt in
     e)
