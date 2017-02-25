@@ -29,13 +29,20 @@ function encrypt
   [ -d ${BASE_PATH} ] || mkdir ${BASE_PATH}
 
   LOCAL_KEY_PATH="${BASE_PATH}/${PUB_KEY}" 
+  GITHUB_URL="https://github.com/${PUB_KEY}.keys"
 
   # Fetch user's ssh rsa key if we don't have it
-  if [ ! -f ${LOCAL_KEY_PATH}.pub.pem ]; then
-    curl --silent "https://github.com/${PUB_KEY}.keys" --output ${LOCAL_KEY_PATH}.keys
+  if [[ ! -f ${LOCAL_KEY_PATH}.pub.pem || ! -s ${LOCAL_KEY_PATH}.keys ]]; then
+    curl --silent ${GITHUB_URL} --output ${LOCAL_KEY_PATH}.keys
     if [ $? -ne 0 ]; then
       echo >&2 "Getting github user's public key failed (${PUB_KEY}.keys). Aborting."; exit 1;
     fi
+
+    if [ ! -s ${LOCAL_KEY_PATH}.keys ]; then
+      rm -f ${LOCAL_KEY_PATH}.keys
+      echo >&2 "User doesn't appear to have a public key @ ${GITHUB_URL} :(. Aborting."; exit 1;
+    fi
+
     # Convert ssh rsa key to pem format
     ssh-keygen -f ${LOCAL_KEY_PATH}.keys -e -m PKCS8 > ${LOCAL_KEY_PATH}.pub.pem
     if [ $? -ne 0 ]; then
@@ -57,7 +64,6 @@ while getopts "e::d :h" opt; do
       encrypt $OPTARG
       ;;
     d)
-      echo "Decrypting..."
       decrypt
       ;;
     h|*)
