@@ -26,32 +26,32 @@ function encrypt
 
   # Store github user keys here
   BASE_PATH="${HOME}/.gitcrypt"
-  [ -d ${BASE_PATH} ] || mkdir foo
+  [ -d ${BASE_PATH} ] || mkdir ${BASE_PATH}
 
   LOCAL_KEY_PATH="${BASE_PATH}/${PUB_KEY}" 
 
   # Fetch user's ssh rsa key if we don't have it
   if [ ! -f ${LOCAL_KEY_PATH}.pub.pem ]; then
     curl --silent "https://github.com/${PUB_KEY}.keys" --output ${LOCAL_KEY_PATH}.keys
-    if [ $_ ne 0 ]; then
+    if [ $? ne 0 ]; then
       echo >&2 "Getting github user's public key failed (${PUB_KEY}.keys). Aborting."; exit 1;
     fi
     # Convert ssh rsa key to pem format
     ssh-keygen -f ${LOCAL_KEY_PATH}.keys -e -m PKCS8 > ${LOCAL_KEY_PATH}.pub.pem
-    if [ $_ ne 0 ]; then
+    if [ $? ne 0 ]; then
       echo >&2 "Could not convert ${LOCAL_KEY_PATH}.keys to PEM format. Aborting."; exit 1;
     fi
   fi
 
   # Encrypt text with user's public key (pem encoded) and base64 it so it can be shared as ascii
   openssl rsautl -encrypt -pubin -inkey ${LOCAL_KEY_PATH}.pub.pem | base64
-  # if [ $_ ne 0 ]; then
-  #   echo >&2 "Could not encode secret with ${LOCAL_KEY_PATH}.pub.pem. Aborting."; exit 1;
-  # fi  
+#  if [ $? ne 0 ]; then
+#    echo >&2 "Could not encode secret with ${LOCAL_KEY_PATH}.pub.pem. Aborting."; exit 1;
+#  fi  
 }
 
 #while getopts ":d:e:h:" opt; do
-while getopts "e::d:h" opt; do
+while getopts "e::d :h" opt; do
   case $opt in
     e)
       encrypt $OPTARG
