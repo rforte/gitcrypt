@@ -1,3 +1,5 @@
+This script is based on the idea of the node.js script cipherhub https://www.npmjs.com/package/cipherhub. I wanted an easy way to copy and paste passwords in slack without exposing (or logging) them in plain-text.
+
 # Usage
 
 ## Encrypting some text.
