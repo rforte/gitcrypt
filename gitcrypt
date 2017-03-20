@@ -13,7 +13,7 @@ function decrypt
 {
   # Decode base64'd encoded secret 
   PRIVATE_KEY="${HOME}/.ssh/id_rsa"
-  base64 -D -in - | openssl rsautl -decrypt -inkey ${PRIVATE_KEY} 
+  base64 --decode --input - | openssl rsautl -decrypt -inkey ${PRIVATE_KEY} 
 }
 
 function encrypt
